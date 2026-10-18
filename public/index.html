@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SILENT ENTRY — top-down tactical shooter</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+<div id="flashFx"></div>
+<div id="lowHpFx"></div>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div id="mission" class="panel">
+    <div id="missionTitle">ОПЕРАЦИЯ «GORDON HALL»</div>
+    <div id="missionText">Защищайте точки A и B</div>
+    <div id="aliveRow"><span class="ct" id="aliveCT">CT 5</span><span class="vs">—</span><span class="t" id="aliveT">5 T</span></div>
+  </div>
+
+  <div id="topCenter" class="panel">
+    <span class="ct" id="scoreCT">0</span>
+    <div id="timerBox"><div id="roundLabel">РАУНД 1</div><div id="timer">0:00</div></div>
+    <span class="t" id="scoreT">0</span>
+  </div>
+
+  <div id="killfeed"></div>
+
+  <div id="playerCard" class="panel">
+    <div id="pcName">OPERATOR</div>
+    <div class="barRow"><span class="lbl">HP</span><div class="bar"><div id="hpBar"></div></div><span id="hpVal">100</span></div>
+    <div class="barRow"><span class="lbl">ARM</span><div class="bar armor"><div id="armBar"></div></div><span id="armVal">0</span></div>
+    <div id="money">$800</div>
+  </div>
+
+  <div id="weaponBox" class="panel">
+    <div id="wpnName">P2000</div>
+    <div id="ammo"><span id="ammoMag">13</span><span class="dim"> / </span><span id="ammoRes" class="dim">52</span></div>
+    <div id="nades"></div>
+    <div id="reloadHint" class="hidden">ПЕРЕЗАРЯДКА…</div>
+  </div>
+
+  <div id="minimapWrap" class="panel">
+    <canvas id="minimap" width="240" height="160"></canvas>
+    <div id="minimapLabel">GORDON HALL · ЭТАЖ 4</div>
+  </div>
+
+  <div id="centerMsg" class="hidden"></div>
+  <div id="subMsg" class="hidden"></div>
+
+  <div id="progressWrap" class="hidden">
+    <div id="progressLabel">УСТАНОВКА БОМБЫ</div>
+    <div class="bar big"><div id="progressBar"></div></div>
+  </div>
+
+  <div id="hitmarker" class="hidden">✕</div>
+  <div id="specLabel" class="hidden"></div>
+  <div id="controlsHint">WASD движение · Мышь цель · ЛКМ огонь · Shift шаг · R перезарядка · E действие · B закуп · 1/2/3 оружие · Tab счёт</div>
+  <button id="muteBtn" title="Звук">🔊</button>
+  <button id="menuBtn" title="В меню">☰</button>
+</div>
+
+<!-- BUY MENU -->
+<div id="buyMenu" class="hidden">
+  <div class="buyHead">СНАРЯЖЕНИЕ <span id="buyMoney"></span> <span class="dim">(B / Esc — закрыть)</span></div>
+  <div id="buyGrid"></div>
+</div>
+
+<!-- SCOREBOARD -->
+<div id="scoreboard" class="hidden">
+  <div class="sbHead">ОПЕРАЦИЯ «GORDON HALL» · СЧЁТ МАТЧА</div>
+  <div class="sbCols">
+    <div><div class="sbTeam ct">СПЕЦНАЗ</div><table id="sbCT"></table></div>
+    <div><div class="sbTeam t">ТЕРРОРИСТЫ</div><table id="sbT"></table></div>
+  </div>
+</div>
+
+<!-- MAIN MENU -->
+<div id="menu">
+  <div class="menuCard">
+    <div class="logo">SILENT<span>ENTRY</span></div>
+    <div class="tagline">TOP-DOWN TACTICAL SHOOTER · COUNTER-STRIKE С ВИДОМ СВЕРХУ</div>
+    <label>Позывной</label>
+    <input id="nick" maxlength="16" value="Operator">
+    <div class="row2">
+      <div><label>Команда</label>
+        <select id="teamSel"><option value="CT">Спецназ (CT)</option><option value="T">Террористы (T)</option><option value="auto">Авто</option></select>
+      </div>
+      <div><label>Сложность ботов</label>
+        <select id="diffSel"><option value="easy">Лёгкая</option><option value="normal" selected>Средняя</option><option value="hard">Сложная</option></select>
+      </div>
+    </div>
+    <button id="btnLocal" class="bigBtn">▶ ИГРАТЬ С БОТАМИ (5×5)</button>
+    <button id="btnLan" class="bigBtn ghost">🌐 ИГРАТЬ ПО СЕТИ / LAN</button>
+    <div id="lanNote">LAN: сервер уже запущен. Друзья в той же сети открывают эту же страницу и жмут «Играть по сети». Пустые места займут боты.</div>
+    <div class="controls">
+      <b>Управление:</b> WASD — движение · мышь — прицел · ЛКМ — огонь · ПКМ — прицел AWP · Shift — тихий шаг ·
+      R — перезарядка · E — плент/дефьюз · B — закуп · 1/2 — оружие · 3 — граната (повторно — сменить) · Tab — счёт
+    </div>
+    <div class="credits">Матч до 7 побед · смена сторон после 6 раундов · точки A «Серверная» и B «Архив»</div>
+  </div>
+</div>
+
+<script src="sim.js"></script>
+<script src="client.js"></script>
+</body>
+</html>

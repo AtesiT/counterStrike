@@ -1,0 +1,13 @@
+{
+  "name": "silent-entry",
+  "version": "1.0.0",
+  "description": "Top-down tactical shooter (Counter-Strike from above) — bots + LAN multiplayer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test:sim": "node test/sim-test.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
