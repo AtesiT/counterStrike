@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SILENT ENTRY — top-down tactical shooter</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<canvas id="cv"></canvas>
+<div id="flashFx"></div>
+<div id="lowHpFx"></div>
+<div id="fps" class="hidden"></div>
+
+<!-- HUD -->
+<div id="hud" class="hidden">
+  <div id="mission" class="panel">
+    <div id="missionTitle">ОПЕРАЦИЯ «GORDON HALL»</div>
+    <div id="missionText">Защищайте точки A и B</div>
+    <div id="aliveRow"><span class="ct" id="aliveCT">CT 5</span><span class="vs">—</span><span class="t" id="aliveT">5 T</span></div>
+  </div>
+
+  <div id="topCenter" class="panel">
+    <span class="ct" id="scoreCT">0</span>
+    <div id="timerBox"><div id="roundLabel">РАУНД 1</div><div id="timer">0:00</div></div>
+    <span class="t" id="scoreT">0</span>
+  </div>
+
+  <button id="menuBtn" title="Меню (Esc)">☰</button>
+  <div id="killfeed"></div>
+
+  <div id="playerCard" class="panel">
+    <div id="pcName">OPERATOR</div>
+    <div class="barRow"><span class="lbl">HP</span><div class="bar"><div id="hpBar"></div></div><span id="hpVal">100</span></div>
+    <div class="barRow"><span class="lbl">ARM</span><div class="bar armor"><div id="armBar"></div></div><span id="armVal">0</span></div>
+    <div id="money">$800</div>
+  </div>
+
+  <div id="weaponBox" class="panel">
+    <div id="wpnName">P2000</div>
+    <div id="ammo"><span id="ammoMag">13</span><span class="dim"> / </span><span id="ammoRes" class="dim">52</span></div>
+    <div id="nades"></div>
+    <div id="reloadHint" class="hidden">ПЕРЕЗАРЯДКА…</div>
+  </div>
+
+  <div id="minimapWrap" class="panel">
+    <canvas id="minimap" width="240" height="160"></canvas>
+    <div id="minimapLabel">GORDON HALL · ЭТАЖ 4</div>
+  </div>
+
+  <div id="centerMsg" class="hidden"></div>
+  <div id="subMsg" class="hidden"></div>
+
+  <div id="progressWrap" class="hidden">
+    <div id="progressLabel">УСТАНОВКА БОМБЫ</div>
+    <div class="bar big"><div id="progressBar"></div></div>
+  </div>
+
+  <div id="hitmarker" class="hidden">✕</div>
+  <div id="specLabel" class="hidden"></div>
+  <div id="controlsHint">WASD движение · Мышь/Пробел огонь · Shift шаг · R перезарядка · E действие · G выбросить · B закуп · 1/2/3/4 оружие/нож/граната · Tab счёт · Esc меню</div>
+</div>
+
+<!-- BUY MENU -->
+<div id="buyMenu" class="hidden">
+  <div class="buyHead">СНАРЯЖЕНИЕ <span id="buyMoney"></span> <span class="dim">(B / Esc — закрыть)</span></div>
+  <div id="buyGrid"></div>
+</div>
+
+<!-- SCOREBOARD -->
+<div id="scoreboard" class="hidden">
+  <div class="sbHead" id="sbHead">СЧЁТ МАТЧА</div>
+  <div class="sbCols">
+    <div><div class="sbTeam ct">СПЕЦНАЗ</div><table id="sbCT"></table></div>
+    <div><div class="sbTeam t">ТЕРРОРИСТЫ</div><table id="sbT"></table></div>
+  </div>
+</div>
+
+<!-- PAUSE MENU -->
+<div id="pauseMenu" class="hidden">
+  <div class="pauseCard">
+    <div class="pauseTitle">ПАУЗА</div>
+    <button id="resumeBtn" class="bigBtn">▶ ПРОДОЛЖИТЬ</button>
+    <button id="pauseSettingsBtn" class="bigBtn ghost">⚙ НАСТРОЙКИ</button>
+    <button id="pauseQuitBtn" class="bigBtn ghost danger">✕ В ГЛАВНОЕ МЕНЮ</button>
+    <div id="pauseNote" class="dim"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settingsModal" class="hidden">
+  <div class="settingsCard">
+    <div class="setHead">НАСТРОЙКИ <button id="settingsClose" title="Закрыть">✕</button></div>
+    <div class="setCols">
+      <div class="setCol">
+        <h3>ГРАФИКА</h3>
+        <label>Масштаб рендера
+          <select id="setScale"><option value="0.6">60% (быстро)</option><option value="0.8">80%</option><option value="1">100%</option><option value="1.25">125% (чётко)</option></select>
+        </label>
+        <label>Частицы и эффекты
+          <select id="setParticles"><option value="0.35">Минимум</option><option value="0.7">Средне</option><option value="1">Полностью</option><option value="1.5">Максимум</option></select>
+        </label>
+        <label class="chk"><input type="checkbox" id="setLighting"> Динамический свет и туман войны</label>
+        <label class="chk"><input type="checkbox" id="setShake"> Тряска камеры</label>
+        <label class="chk"><input type="checkbox" id="setBlood"> Кровь</label>
+        <label class="chk"><input type="checkbox" id="setDmgNum"> Цифры урона</label>
+        <label class="chk"><input type="checkbox" id="setFps"> Показывать FPS</label>
+        <h3>ЗВУК</h3>
+        <label>Громкость <input type="range" id="setVolume" min="0" max="100" value="50"></label>
+        <label class="chk"><input type="checkbox" id="setMute"> Без звука</label>
+      </div>
+      <div class="setCol">
+        <h3>КЛАВИШИ</h3>
+        <div id="bindList"></div>
+        <button id="bindReset" class="miniBtn">Сбросить по умолчанию</button>
+        <div class="dim small">Нажмите кнопку действия, затем нужную клавишу. Esc — отмена. Огонь также всегда на левой кнопке мыши.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN MENU -->
+<div id="menu">
+  <div class="menuCard">
+    <div class="logo">SILENT<span>ENTRY</span></div>
+    <div class="tagline">TOP-DOWN TACTICAL SHOOTER · COUNTER-STRIKE С ВИДОМ СВЕРХУ</div>
+    <div class="tabs">
+      <button class="tabBtn active" data-tab="play">🎮 ИГРАТЬ</button>
+      <button class="tabBtn" data-tab="maps">🗺 КАРТЫ</button>
+      <button class="tabBtn" data-tab="help">📖 СПРАВКА</button>
+      <button class="tabBtn" id="menuSettingsBtn">⚙ НАСТРОЙКИ</button>
+    </div>
+
+    <div id="tab-play" class="tabPane">
+      <label>Позывной</label>
+      <input id="nick" maxlength="16" value="Operator">
+      <div class="row2">
+        <div><label>Команда</label>
+          <select id="teamSel"><option value="CT">Спецназ (CT)</option><option value="T">Террористы (T)</option><option value="auto">Авто</option></select>
+        </div>
+        <div><label>Сложность ботов</label>
+          <select id="diffSel"><option value="easy">Лёгкая</option><option value="normal" selected>Средняя</option><option value="hard">Сложная</option></select>
+        </div>
+      </div>
+      <div id="selMapLine">Карта: <b id="selMapName">Gordon Hall · Офис</b> <span class="dim">(вкладка «Карты»)</span></div>
+      <button id="btnLocal" class="bigBtn">▶ ИГРАТЬ С БОТАМИ (5×5)</button>
+      <button id="btnLan" class="bigBtn ghost">🌐 ИГРАТЬ ПО СЕТИ / LAN</button>
+      <div id="lanNote">LAN: друзья в той же сети открывают эту же страницу и жмут «Играть по сети». На сервере карты идут по ротации: Офис → Dust → Зима → Джунгли. Пустые места займут боты.</div>
+    </div>
+
+    <div id="tab-maps" class="tabPane hidden">
+      <div id="mapGrid"></div>
+      <div class="dim small">Выбранная карта используется в режиме с ботами. На LAN-сервере действует ротация всех четырёх карт после каждого матча.</div>
+    </div>
+
+    <div id="tab-help" class="tabPane hidden">
+      <div class="helpText">
+        <b>Режимы.</b> <span class="ct">Бомба:</span> T ставят заряд на A или B (клавиша действия у точки), CT обезвреживают.
+        <span class="ct">Заложники:</span> CT освобождают заложника (действие рядом с ним) и ведут его в зелёную зону эвакуации; T охраняют. За убийство заложника — штраф $1000.<br><br>
+        <b>Управление (по умолчанию).</b> WASD — движение · мышь — прицел · ЛКМ или Пробел — огонь · ПКМ — прицел AWP/SSG ·
+        Shift — тихий шаг · R — перезарядка · E — действие (плент/дефьюз/заложник/смена оружия на земле) · G — выбросить оружие ·
+        B — закуп · 1 — основное · 2 — пистолет · 3 — нож · 4 — граната (повторно — сменить тип) · Tab — счёт · Esc — меню.
+        Все клавиши переназначаются в настройках.<br><br>
+        <b>Оружие на земле.</b> Выброшенное и выпавшее из убитых оружие подбирается проходом по нему (если слот свободен) или клавишей действия (обмен).<br><br>
+        <b>Матч</b> — до 7 побед, смена сторон после 6 раундов. Грязь и вода замедляют, по льду — быстрее.
+      </div>
+    </div>
+
+    <div class="credits">4 карты · 2 режима · боты и LAN · настройки графики и клавиш во вкладке ⚙</div>
+  </div>
+</div>
+
+<script src="sim.js"></script>
+<script src="client.js"></script>
+</body>
+</html>
